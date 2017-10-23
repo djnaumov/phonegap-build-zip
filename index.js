@@ -1,7 +1,8 @@
-import path from 'path';
-import process from 'process';
-import fs from 'fs';
-import JSZip from 'jszip';
+const path = require('path');
+const process = require('process');
+const fs = require('fs');
+const JSZip = require('jszip');
+const zip = new JSZip();
 
 const getPaths = (source) => {
 
@@ -15,7 +16,7 @@ const getPaths = (source) => {
             stat = fs.statSync(dirPath);
 
         if (stat.isDirectory() && !stat.isFile()) {
-            arr = arr.concat(this.getPaths(dirPath));
+            arr = arr.concat(getPaths(dirPath));
         }
         else {
             arr.push(dirPath);
@@ -24,47 +25,35 @@ const getPaths = (source) => {
     return arr;
 };
 
-export default class {
+const buildZip = (source, destination) => {
 
-    constructor() {
-        this._zip = new JSZip();
-    }
+    try {
+        const
+            initCwdPath = process.cwd(),
+            processRootPath = path.join(initCwdPath, source);
 
-    /**
-     *
-     * @param source
-     * @param destination
-     * @returns {*|worker}
-     */
-    zip(source, destination) {
+        process.chdir(processRootPath);
 
-        try {
-            const
-                initCwdPath = process.cwd(),
-                processRootPath = path.join(initCwdPath, source);
+        const
+            foundFilesPaths = getPaths('.'),
+            root = zip.folder(source);
 
-            process.chdir(processRootPath);
-
-            const
-                foundFilesPaths = getPaths('.'),
-                root = this._zip.folder(source);
-
-            for (let i = 0; i < foundFilesPaths.length; i++) {
-                root.file(foundFilesPaths[i], fs.createReadStream(foundFilesPaths[i]));
-            }
-
-            process.chdir(initCwdPath);
-
-            return root.generateNodeStream({
-                type: "nodebuffer",
-                streamFiles: true,
-                compression: "DEFLATE"
-            })
-                .pipe(fs.createWriteStream(destination));
-
-        } catch (e) {
-            throw new Error(e.message);
+        for (let i = 0; i < foundFilesPaths.length; i++) {
+            root.file(foundFilesPaths[i], fs.createReadStream(foundFilesPaths[i]));
         }
-    }
 
-}
+        process.chdir(initCwdPath);
+
+        return root.generateNodeStream({
+            type: "nodebuffer",
+            streamFiles: true,
+            compression: "DEFLATE"
+        })
+            .pipe(fs.createWriteStream(destination));
+
+    } catch (e) {
+        throw new Error(e.message);
+    }
+};
+
+module.exports = buildZip;
