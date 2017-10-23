@@ -3,12 +3,39 @@ import process from 'process';
 import fs from 'fs';
 import JSZip from 'jszip';
 
+const getPaths = (source) => {
+
+    const dirs = fs.readdirSync(source);
+
+    let arr = [];
+
+    for (let i = 0; i < dirs.length; i++) {
+        const
+            dirPath = path.join(source, dirs[i]),
+            stat = fs.statSync(dirPath);
+
+        if (stat.isDirectory() && !stat.isFile()) {
+            arr = arr.concat(this.getPaths(dirPath));
+        }
+        else {
+            arr.push(dirPath);
+        }
+    }
+    return arr;
+};
+
 export default class {
 
     constructor() {
         this._zip = new JSZip();
     }
 
+    /**
+     *
+     * @param source
+     * @param destination
+     * @returns {*|worker}
+     */
     zip(source, destination) {
 
         try {
@@ -19,7 +46,7 @@ export default class {
             process.chdir(processRootPath);
 
             const
-                foundFilesPaths = this.getPathes('.'),
+                foundFilesPaths = getPaths('.'),
                 root = this._zip.folder(source);
 
             for (let i = 0; i < foundFilesPaths.length; i++) {
@@ -40,24 +67,4 @@ export default class {
         }
     }
 
-    getPaths(source) {
-
-        const dirs = fs.readdirSync(source);
-
-        let arr = [];
-
-        for (let i = 0; i < dirs.length; i++) {
-            const
-                dirPath = path.join(source, dirs[i]),
-                stat = fs.statSync(dirPath);
-
-            if (stat.isDirectory() && !stat.isFile()) {
-                arr = arr.concat(this.getPaths(dirPath));
-            }
-            else {
-                arr.push(dirPath);
-            }
-        }
-        return arr;
-    }
 }
