@@ -1,0 +1,19 @@
+{
+  "name": "phonegap-build-zip",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djnaumov/phonegap-build-zip.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/djnaumov/phonegap-build-zip/issues"
+  },
+  "homepage": "https://github.com/djnaumov/phonegap-build-zip#readme"
+}
